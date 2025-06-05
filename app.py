@@ -6,8 +6,8 @@ app = Flask(__name__)
 
 @app.route("/upload-url", methods=["POST"])
 def upload_url():
-    data = request.json  # Değişiklik burada!
-    
+    data = request.get_json(force=True)
+
     if not data or "url" not in data:
         return jsonify({"error": "Missing URL"}), 400
 
