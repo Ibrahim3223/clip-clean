@@ -4,3 +4,5 @@ whisper
 yt-dlp
 ffmpeg-python
 requests
+git+https://github.com/openai/whisper.git
+torch
