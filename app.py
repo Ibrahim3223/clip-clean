@@ -6,13 +6,23 @@ app = Flask(__name__)
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    if "file" not in request.files:
+    file = None
+
+    # Her ihtimali kontrol et
+    if "file" in request.files:
+        file = request.files["file"]
+    elif "file" in request.form:
+        file = request.form["file"]
+    elif request.data:
+        return jsonify({"error": "Request body exists but no valid file"}), 400
+    else:
         return jsonify({"error": "No file part in the request"}), 400
 
-    file = request.files["file"]
-    if file.filename == "":
+    # Dosya kontrolü
+    if not file:
         return jsonify({"error": "No selected file"}), 400
 
+    # Dosyayı kaydet
     filepath = "video.mp4"
     file.save(filepath)
 
