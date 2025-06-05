@@ -6,8 +6,8 @@ app = Flask(__name__)
 
 @app.route("/upload-url", methods=["POST"])
 def upload_url():
-    data = request.json  # DEĞİŞTİ: request.get_json() yerine request.json
-
+    data = request.json  # Değişiklik burada!
+    
     if not data or "url" not in data:
         return jsonify({"error": "Missing URL"}), 400
 
@@ -28,7 +28,6 @@ def upload_url():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 @app.route("/download", methods=["GET"])
 def download():
     return send_file("final.mp4", as_attachment=True)
