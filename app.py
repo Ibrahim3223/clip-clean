@@ -1,13 +1,13 @@
-@app.before_request
-def debug_request():
-    print("RAILWAY DEBUG - Headers:", dict(request.headers))
-    print("RAILWAY DEBUG - Raw Body:", request.get_data())
-
 from flask import Flask, request, jsonify, send_file
 import subprocess, os, requests
 from utils import transcribe_audio, find_best_segment, edit_video
 
 app = Flask(__name__)
+
+@app.before_request
+def debug_request():
+    print("RAILWAY DEBUG - Headers:", dict(request.headers))
+    print("RAILWAY DEBUG - Raw Body:", request.get_data())
 
 @app.route("/upload-url", methods=["POST"])
 def upload_url():
@@ -39,6 +39,7 @@ def upload_url():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 @app.route("/download", methods=["GET"])
 def download():
     return send_file("final.mp4", as_attachment=True)
