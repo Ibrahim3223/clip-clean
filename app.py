@@ -1,35 +1,27 @@
-from flask import Flask, request, send_file, jsonify
-import subprocess, os
+from flask import Flask, request, jsonify, send_file
+import subprocess, os, requests
 from utils import transcribe_audio, find_best_segment, edit_video
 
 app = Flask(__name__)
 
-@app.route("/upload", methods=["POST"])
-def upload():
-    file = None
+@app.route("/upload-url", methods=["POST"])
+def upload_url():
+    data = request.get_json()
+    if not data or "url" not in data:
+        return jsonify({"error": "Missing URL"}), 400
 
-    # Her ihtimali kontrol et
-    if "file" in request.files:
-        file = request.files["file"]
-    elif "file" in request.form:
-        file = request.form["file"]
-    elif request.data:
-        return jsonify({"error": "Request body exists but no valid file"}), 400
-    else:
-        return jsonify({"error": "No file part in the request"}), 400
+    video_url = data["url"]
+    response = requests.get(video_url)
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to download video"}), 400
 
-    # Dosya kontrolü
-    if not file:
-        return jsonify({"error": "No selected file"}), 400
-
-    # Dosyayı kaydet
-    filepath = "video.mp4"
-    file.save(filepath)
+    with open("video.mp4", "wb") as f:
+        f.write(response.content)
 
     try:
-        transcript = transcribe_audio(filepath)
+        transcript = transcribe_audio("video.mp4")
         start, duration = find_best_segment(transcript)
-        final_path = edit_video(filepath, start, duration)
+        final_path = edit_video("video.mp4", start, duration)
         return jsonify({"status": "ok", "download_url": request.url_root + "download"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
