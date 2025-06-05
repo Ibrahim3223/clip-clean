@@ -6,7 +6,13 @@ app = Flask(__name__)
 
 @app.route("/upload-url", methods=["POST"])
 def upload_url():
-    data = request.get_json(force=True)
+    print("RAILWAY DEBUG - Raw Data:", request.data)
+
+    try:
+        data = request.get_json(force=True)
+        print("RAILWAY DEBUG - Parsed JSON:", data)
+    except Exception as e:
+        return jsonify({"error": f"JSON parse error: {str(e)}"}), 400
 
     if not data or "url" not in data:
         return jsonify({"error": "Missing URL"}), 400
