@@ -1,3 +1,8 @@
+@app.before_request
+def debug_request():
+    print("RAILWAY DEBUG - Headers:", dict(request.headers))
+    print("RAILWAY DEBUG - Raw Body:", request.get_data())
+
 from flask import Flask, request, jsonify, send_file
 import subprocess, os, requests
 from utils import transcribe_audio, find_best_segment, edit_video
