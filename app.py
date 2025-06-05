@@ -6,23 +6,26 @@ app = Flask(__name__)
 
 @app.route("/upload-url", methods=["POST"])
 def upload_url():
-    data = request.get_json()
+    data = request.json  # DEĞİŞTİ: request.get_json() yerine request.json
+
     if not data or "url" not in data:
         return jsonify({"error": "Missing URL"}), 400
 
     video_url = data["url"]
-    response = requests.get(video_url)
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to download video"}), 400
-
-    with open("video.mp4", "wb") as f:
-        f.write(response.content)
-
     try:
+        response = requests.get(video_url)
+        if response.status_code != 200:
+            return jsonify({"error": "Failed to download video"}), 400
+
+        with open("video.mp4", "wb") as f:
+            f.write(response.content)
+
         transcript = transcribe_audio("video.mp4")
         start, duration = find_best_segment(transcript)
         final_path = edit_video("video.mp4", start, duration)
+
         return jsonify({"status": "ok", "download_url": request.url_root + "download"})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
